@@ -45,21 +45,21 @@ class Component {
 
     this.element.style.left = this.x + "px";
     this.element.style.top = this.y + "px";
-    drawConnections()
+    drawConnections();
   };
 
   mouseUp = () => {
-    if (!this.dragged){
+    if (!this.dragged) {
       //hasn't been moved - indicated click to link
-      console.log(this, "wants to connect")
+      console.log(this, "wants to connect");
       if (!from) {
-        from = this
-      } 
+        from = this;
+      }
 
       if (!to && this !== from) {
-        to = this
-        if (from && to){
-          buildConnection()
+        to = this;
+        if (from && to) {
+          buildConnection();
         }
       }
     }
@@ -72,7 +72,34 @@ class Component {
 class Battery extends Component {
   constructor() {
     super();
-    this.element.innerHTML = "B";
+
+    this.element.classList.add("battery");
+
+    let hline1 = document.createElement("div");
+    hline1.classList.add("battery-hline");
+
+    let vlineTall1 = document.createElement("div");
+    vlineTall1.classList.add("battery-vline-tall");
+
+    let vlineShort1 = document.createElement("div");
+    vlineShort1.classList.add("battery-vline-short");
+
+    let hline2 = document.createElement("div");
+    hline2.classList.add("battery-hline");
+
+    let vlineTall2 = document.createElement("div");
+    vlineTall2.classList.add("battery-vline-tall");
+
+    let vlineShort2 = document.createElement("div");
+    vlineShort2.classList.add("battery-vline-short");
+    vlineShort2.style.marginRight = "0px"
+
+    this.element.appendChild(hline1);
+    this.element.appendChild(vlineTall1);
+    this.element.appendChild(vlineShort1);
+    this.element.appendChild(vlineTall2);
+    this.element.appendChild(vlineShort2);
+    this.element.appendChild(hline2);
   }
 }
 
@@ -109,66 +136,48 @@ buildConnection = () => {
   drawConnections();
 };
 
-// handleMove = (event) => {
-//   if (activeComponent) {
-//     drawPotentialConnection(event);
-//   }
-// };
-
 drawConnections = () => {
-  let oldLines = document.querySelectorAll(".new-line");
+  //Finds everything with the class of line.
+  let oldLines = document.querySelectorAll(".line");
+  //Goes through the list returned and removes them all.
   oldLines.forEach((line) => line.remove());
 
-  let rect = circuitSpace.getBoundingClientRect();
+  //Goes through the connections and creates a line for each
   circuit.connections.forEach(([comp1, comp2]) => {
+    //Create a new "Box" to act as a the line
     let line = document.createElement("div");
+    //Applies the line class - sets things like absolute position, thickness of 2px, black fill
     line.classList.add("line");
 
-    let x1 = comp1.x + comp1.width / 2;
-    let y1 = comp1.y + comp1.height / 2;
-    let x2 = comp2.x + comp2.width / 2;
-    let y2 = comp2.y + comp2.height / 2;
+    //Finds the co-ordinates of the two components being joined - offset by 25 for half node size
+    let startX = comp1.x + 25;
+    let startY = comp1.y + 25;
+    let endX = comp2.x + 25;
+    let endY = comp2.y + 25;
 
-    let length = Math.hypot(x2 - x1, y2 - y1);
-    let angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+    //Work out the difference in terms of x and y between the components
+    let a = endX - startX;
+    let b = endY - startY;
+    //bit of pythag to work out the length the line needs to be
+    let lineLength = Math.hypot(a, b);
+    //Works out the rotation of the angle in RADIANS
+    let rotation = Math.atan2(b, a);
 
-    line.style.width = length + "px";
-    line.style.transform = `rotate(${angle}deg)`;
-    line.style.left = x1 + "px";
-    line.style.top = y1 + "px";
+    //places the line at the start x and y
+    line.style.left = startX + "px";
+    line.style.top = startY + "px";
+    //Sets the width of the line to be the calculated line length.
+    line.style.width = lineLength + "px";
 
+    //Applies the transformation in radians
+    line.style.transform = `rotate(${rotation}rad)`;
+    //places the line into the circuit space
     circuitSpace.appendChild(line);
   });
 };
-
-// drawPotentialConnection = (event) => {
-//   let oldLine = document.getElementById("new-line");
-//   if (oldLine) oldLine.remove();
-
-//   // Get circuitSpace's position relative to the viewport
-//   let rect = circuitSpace.getBoundingClientRect();
-
-//   let startX = Math.min(event.clientX - rect.left, activeComponent.x);
-//   let startY = Math.min(event.clientY - rect.top, activeComponent.y);
-//   let width = Math.abs(event.clientX - rect.left - activeComponent.x);
-//   let height = Math.abs(event.clientY - rect.top - activeComponent.y);
-
-//   let newLine = document.createElement("div");
-//   newLine.id = "new-line";
-//   newLine.classList.add("line");
-
-//   newLine.style.left = startX + 25 + "px";
-//   newLine.style.top = startY + 25 + "px";
-//   newLine.style.width = width + "px";
-//   newLine.style.height = height + "px";
-
-//   circuitSpace.appendChild(newLine);
-// };
 
 //program code
 let from = null;
 let to = null;
 const circuitSpace = document.getElementById("circuit-space");
 const circuit = new Circuit();
-
-// document.addEventListener("mousemove", handleMove);
