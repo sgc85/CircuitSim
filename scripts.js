@@ -34,9 +34,7 @@ class Component {
   };
 
   drag = (event) => {
-    this.isConnecting = false;
     this.dragged = true;
-    this.activeComponent = null;
     let newX = event.clientX - this.offsetX;
     let newY = event.clientY - this.offsetY;
 
@@ -51,7 +49,7 @@ class Component {
   mouseUp = () => {
     if (!this.dragged) {
       //hasn't been moved - indicated click to link
-      console.log(this, "wants to connect");
+      // console.log(this, "wants to connect");
       if (!from) {
         from = this;
       }
